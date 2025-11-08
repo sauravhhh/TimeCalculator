@@ -1,1 +1,321 @@
-a
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            flex-grow: 1;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .clock-icon {
+            width: 32px;
+            height: 32px;
+            fill: #6c757d;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            background-color: #fff;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #a0a0a0;
+        }
+
+        .time-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .time-input-group input {
+            flex: 1;
+        }
+
+        .time-input-group select {
+            width: auto;
+            padding: 12px 8px;
+        }
+
+        .btn {
+            background-color: #e9ecef;
+            color: #333;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #dee2e6;
+        }
+
+        .result-container {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            text-align: center;
+            min-height: 60px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-container.show {
+            display: flex;
+        }
+
+        .result {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .clock-icon {
+                width: 28px;
+                height: 28px;
+            }
+            
+            .time-input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .time-input-group select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <svg class="clock-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" />
+            </svg>
+            Time Calculator
+        </h1>
+        
+        <div class="form-group">
+            <label for="datetime">Select Date and Time:</label>
+            <input type="datetime-local" id="datetime">
+        </div>
+        
+        <div class="form-group">
+            <label>Add/Subtract Time:</label>
+            <div class="time-input-group">
+                <input type="number" id="timeValue" placeholder="Enter value" min="0">
+                <select id="timeUnit">
+                    <option value="seconds">Seconds</option>
+                    <option value="minutes">Minutes</option>
+                    <option value="hours" selected>Hours</option>
+                    <option value="days">Days</option>
+                    <option value="weeks">Weeks</option>
+                    <option value="months">Months</option>
+                    <option value="years">Years</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Operation:</label>
+            <select id="operation">
+                <option value="add">Add</option>
+                <option value="subtract">Subtract</option>
+            </select>
+        </div>
+        
+        <button class="btn" onclick="calculateTime()">Calculate</button>
+        
+        <div id="resultContainer" class="result-container">
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+    
+    <footer>
+        Made with ❤️ by Sauravhhh
+    </footer>
+
+    <script>
+        // Set current date and time as default
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            
+            const datetimeString = `${year}-${month}-${day}T${hours}:${minutes}`;
+            document.getElementById('datetime').value = datetimeString;
+        });
+
+        function calculateTime() {
+            const datetimeInput = document.getElementById('datetime').value;
+            const timeValue = parseFloat(document.getElementById('timeValue').value);
+            const timeUnit = document.getElementById('timeUnit').value;
+            const operation = document.getElementById('operation').value;
+            const resultElement = document.getElementById('result');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            if (!datetimeInput) {
+                resultElement.textContent = "Please select a date and time";
+                resultContainer.classList.add('show');
+                return;
+            }
+            
+            if (isNaN(timeValue)) {
+                resultElement.textContent = "Please enter a valid time value";
+                resultContainer.classList.add('show');
+                return;
+            }
+            
+            const selectedDate = new Date(datetimeInput);
+            let resultDate = new Date(selectedDate);
+            
+            // Calculate based on the selected unit
+            switch(timeUnit) {
+                case 'seconds':
+                    if (operation === 'add') {
+                        resultDate.setSeconds(resultDate.getSeconds() + timeValue);
+                    } else {
+                        resultDate.setSeconds(resultDate.getSeconds() - timeValue);
+                    }
+                    break;
+                case 'minutes':
+                    if (operation === 'add') {
+                        resultDate.setMinutes(resultDate.getMinutes() + timeValue);
+                    } else {
+                        resultDate.setMinutes(resultDate.getMinutes() - timeValue);
+                    }
+                    break;
+                case 'hours':
+                    if (operation === 'add') {
+                        resultDate.setHours(resultDate.getHours() + timeValue);
+                    } else {
+                        resultDate.setHours(resultDate.getHours() - timeValue);
+                    }
+                    break;
+                case 'days':
+                    if (operation === 'add') {
+                        resultDate.setDate(resultDate.getDate() + timeValue);
+                    } else {
+                        resultDate.setDate(resultDate.getDate() - timeValue);
+                    }
+                    break;
+                case 'weeks':
+                    if (operation === 'add') {
+                        resultDate.setDate(resultDate.getDate() + (timeValue * 7));
+                    } else {
+                        resultDate.setDate(resultDate.getDate() - (timeValue * 7));
+                    }
+                    break;
+                case 'months':
+                    if (operation === 'add') {
+                        resultDate.setMonth(resultDate.getMonth() + timeValue);
+                    } else {
+                        resultDate.setMonth(resultDate.getMonth() - timeValue);
+                    }
+                    break;
+                case 'years':
+                    if (operation === 'add') {
+                        resultDate.setFullYear(resultDate.getFullYear() + timeValue);
+                    } else {
+                        resultDate.setFullYear(resultDate.getFullYear() - timeValue);
+                    }
+                    break;
+            }
+            
+            // Format the result
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            
+            const formattedResult = resultDate.toLocaleDateString('en-US', options);
+            resultElement.textContent = formattedResult;
+            resultContainer.classList.add('show');
+        }
+    </script>
+</body>
+  </html>
